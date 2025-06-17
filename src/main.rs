@@ -3,19 +3,27 @@ use bevy::prelude::*;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_systems(Startup, (spawn_space_ship, spawn_camera))
+        .add_systems(Startup, (spawn_space_ship, spawn_camera, spawn_lignt))
         .add_systems(Update, move_space_ship)
         .run();
 }
 
 fn spawn_camera(mut commands: Commands) {
     commands.spawn((
-        Camera2d,
-        Transform {
-            translation: Vec3::new(0.0, 0.0, 100.0),
+        Camera3d::default(),
+        Transform::from_xyz(0.0, 0.0, 100.0).looking_at(Vec3::ZERO, Vec3::Y),
+    ));
+}
+
+fn spawn_lignt(mut commands: Commands) {
+    commands.spawn((
+        PointLight {
+            range: 10_000_000.,
+            radius: 100_000.,
+            intensity: 10_000_000.,
             ..default()
         },
-        GlobalTransform::default(),
+        Transform::from_xyz(0., 0., 5.0),
     ));
 }
 
@@ -26,21 +34,23 @@ struct SpaceShip {
     rotation: f32,
 }
 
-fn spawn_space_ship(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let texture_handle = asset_server.load("space_ship.png");
+fn spawn_space_ship(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
     commands.spawn((
-        Sprite {
-            image: texture_handle,
+        Mesh3d(meshes.add(Rectangle::new(10., 10.))),
+        MeshMaterial3d(materials.add(StandardMaterial {
+            base_color_texture: Some(asset_server.load("space_ship.png")),
+            alpha_mode: AlphaMode::Blend,
+            unlit: false,
             ..default()
-        },
-        Transform {
-            translation: Vec3::new(0.0, 0.0, 0.0),
-            scale: Vec3::splat(0.5),
-            ..default()
-        },
-        GlobalTransform::default(),
+        })),
+        Transform::default(),
         SpaceShip {
-            speed: 2.0,
+            speed: 0.25,
             position: Vec2::ZERO,
             rotation: 0.0,
         },
