@@ -1,5 +1,5 @@
 use crate::plugins::spaceship::Spaceship;
-use bevy::prelude::*;
+use bevy::{core_pipeline::motion_blur::MotionBlur, prelude::*};
 
 pub struct CameraPlugin;
 
@@ -17,6 +17,13 @@ const FOLLOW_Y_OFFSET: f32 = 5.0;
 fn spawn_camera(mut commands: Commands) {
     commands.spawn((
         Camera3d::default(),
+        MotionBlur {
+            shutter_angle: 1.0,
+            samples: 2,
+        },
+        // MSAA and Motion Blur together are not compatible on WebGL
+        #[cfg(all(feature = "webgl2", target_arch = "wasm32", not(feature = "webgpu")))]
+        Msaa::Off,
         Transform::from_xyz(0.0, 0.0, 100.0).looking_at(Vec3::ZERO, Dir3::Y),
     ));
 }
