@@ -1,6 +1,6 @@
 # 🚀 Bevy 3D Space Simulation Game
 
-A small 3D space simulation game built with [Bevy 0.16](https://bevyengine.org), featuring:
+A small 3D space simulation game built with [Bevy 0.16](https://bevy.org), featuring:
 
 - A player-controlled spaceship with **Newtonian inertia-based physics**.
 - A **third-person chase camera** that follows your ship dynamically.
