@@ -1,4 +1,4 @@
-# 🚀 Bevy 3D Space Simulation Game
+# 🚀 3D Space Simulation Game
 
 A small 3D space simulation game built with [Bevy 0.16](https://bevy.org), featuring:
 
