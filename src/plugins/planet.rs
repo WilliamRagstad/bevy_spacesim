@@ -64,13 +64,10 @@ fn generate_planet_material(
         TextureFormat::Rgba8UnormSrgb,
         RenderAssetUsages::RENDER_WORLD,
     );
-    image.sampler = ImageSampler::nearest(); // pixelated look
-
+    image.sampler = ImageSampler::linear();
     let image_handle = images.add(image);
-
     let roughness = rng.random_range(0.1..0.9);
     let metallic = rng.random_range(0.0..0.6);
-
     materials.add(StandardMaterial {
         base_color_texture: Some(image_handle.clone()),
         base_color: Color::WHITE,
