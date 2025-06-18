@@ -10,7 +10,7 @@ mod plugins;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins(BigSpacePlugin::default())
+        .add_plugins(BigSpacePlugin::new(false))
         .add_plugins((
             SpaceshipPlugin,
             CameraPlugin,
