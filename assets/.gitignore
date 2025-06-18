@@ -1,0 +1,5 @@
+# Ignore too large files
+# Ignore files larger than 100MB
+
+space_fighter.glb
+space_rocket.glb
