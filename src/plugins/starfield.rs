@@ -28,10 +28,10 @@ fn setup_skybox(
     });
 
     commands.spawn((
-        Mesh3d(meshes.add(Mesh::from(Sphere::new(10.)))),
+        Mesh3d(meshes.add(Mesh::from(Sphere::new(1.)))),
         MeshMaterial3d(skybox_material),
         Visibility::Visible,
         InheritedVisibility::default(),
-        Transform::from_translation(Vec3::ZERO).with_scale(Vec3::splat(10000.0)),
+        Transform::from_translation(Vec3::ZERO).with_scale(Vec3::splat(100_000_000_000.0)),
     ));
 }

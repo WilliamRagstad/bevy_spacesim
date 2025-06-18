@@ -75,6 +75,7 @@ fn generate_planet_material(
         base_color_texture: Some(image_handle.clone()),
         base_color: Color::WHITE,
         perceptual_roughness: roughness,
+        emissive_exposure_weight: emissive_strength,
         metallic,
         // emissive: emissive_color.into(),
         ..default()
