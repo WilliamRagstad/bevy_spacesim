@@ -34,3 +34,8 @@ A small 3D space simulation game built with [Bevy 0.16](https://bevy.org), featu
   [Download from CGTrader](https://www.cgtrader.com/items/3494266/download-page)
   Rename accordingly if you want to use it as `space_rocket.glb`.
 You also need to update the `main.rs` file to use this model instead of the default fighter.
+
+<br>
+<br>
+
+![Game Screenshot](screenshot.png)
