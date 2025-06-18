@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use crate::ops::acos;
 use bevy::{
     asset::RenderAssetUsages,
@@ -68,21 +70,19 @@ fn generate_planet_material(
 
     let roughness = rng.random_range(0.1..0.9);
     let metallic = rng.random_range(0.0..0.6);
-    let emissive_strength = rng.random_range(0.0..1.0);
-    // let emissive_color = Color::linear_rgb(r, g, b).with_luminance(emissive_strength);
 
     materials.add(StandardMaterial {
         base_color_texture: Some(image_handle.clone()),
         base_color: Color::WHITE,
         perceptual_roughness: roughness,
-        emissive_exposure_weight: emissive_strength,
         metallic,
-        // emissive: emissive_color.into(),
         ..default()
     })
 }
 
 const PLANET_COUNT: usize = 30;
+const PLANET_DISTANCE: Range<f32> = 600_000.0..1_000_000.0;
+const PLANET_SCALE: Range<f32> = 5_000.0..30_000.0;
 
 fn spawn_planets(
     mut commands: Commands,
@@ -93,7 +93,7 @@ fn spawn_planets(
     let planet_mesh = meshes.add(Mesh::from(Sphere { radius: 1.0 }));
     let mut rng = rand::rng();
     for _ in 0..PLANET_COUNT {
-        let dist = rng.random_range(60.0..120.0);
+        let dist = rng.random_range(PLANET_DISTANCE);
         let theta = rng.random_range(0.0..(2.0 * std::f32::consts::PI));
         let phi = acos(rng.random_range(-1.0..1.0));
         let x = dist * phi.sin() * theta.cos();
@@ -101,7 +101,7 @@ fn spawn_planets(
         let z = dist * phi.sin() * theta.sin();
         let position = Vec3::new(x, y, z);
         let planet_material = generate_planet_material(&mut materials, &mut images, &mut rng);
-        let scale = rng.random_range(0.5..3.0);
+        let scale = rng.random_range(PLANET_SCALE);
         commands.spawn((
             Mesh3d(planet_mesh.clone()),
             MeshMaterial3d(planet_material.clone()),

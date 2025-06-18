@@ -10,6 +10,10 @@ impl Plugin for CameraPlugin {
     }
 }
 
+const FOLLOW_DISTANCE: f32 = 25.0;
+const FOLLOW_HEIGHT: f32 = 10.0;
+const FOLLOW_Y_OFFSET: f32 = 5.0;
+
 fn spawn_camera(mut commands: Commands) {
     commands.spawn((
         Camera3d::default(),
@@ -24,13 +28,12 @@ fn follow_camera(
     if let (Ok(mut cam_transform), Ok(ship_transform)) =
         (query_cam.single_mut(), query_ship.single())
     {
-        let follow_distance = 25.0;
-        let follow_height = 10.0;
         let ship_pos = ship_transform.translation;
         let ship_forward = ship_transform.forward();
         let ship_up = ship_transform.up();
         cam_transform.translation =
-            ship_pos - ship_forward * follow_distance + ship_up * follow_height;
-        cam_transform.look_at(ship_pos, Vec3::Y);
+            ship_pos - ship_forward * FOLLOW_DISTANCE + ship_up * FOLLOW_HEIGHT;
+        let looking_at_pos = ship_pos + Vec3::Y * FOLLOW_Y_OFFSET;
+        cam_transform.look_at(looking_at_pos, Vec3::Y);
     }
 }

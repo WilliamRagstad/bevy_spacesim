@@ -10,11 +10,12 @@ impl Plugin for SpaceshipPlugin {
     }
 }
 
-const THRUST_ACCEL: f32 = 15.0;
+const THRUST_ACCEL: f32 = 1_000.0;
+const BOOST_ACCEL: f32 = 40_000.0; // Boost acceleration
 const DRAG_FRICTION: f32 = 0.99; // 1.0 = no drag, lower = more drag
 const ROLL_SPEED: f32 = 1.5;
-const MOUSE_SENSITIVITY: f32 = 0.0009;
-const MIN_MOUSE_OFFSET: f32 = 20.0;
+const MOUSE_SENSITIVITY: f32 = 0.001;
+const MIN_MOUSE_OFFSET: f32 = 30.0;
 
 #[derive(Component)]
 pub struct Spaceship {
@@ -63,7 +64,13 @@ fn move_space_ship(
         if keyboard_input.any_pressed([KeyCode::ArrowUp, KeyCode::KeyW]) {
             // Accelerate the spaceship
             let forward = transform.forward();
-            spaceship.velocity += forward * THRUST_ACCEL * dt;
+            if keyboard_input.pressed(KeyCode::ShiftLeft) {
+                // Boost the spaceship
+                spaceship.velocity += forward * BOOST_ACCEL * dt;
+            } else {
+                // Normal thrust
+                spaceship.velocity += forward * THRUST_ACCEL * dt;
+            }
         }
         if keyboard_input.any_pressed([KeyCode::ArrowDown, KeyCode::KeyS]) {
             // Decelerate the spaceship
