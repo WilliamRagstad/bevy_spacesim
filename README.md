@@ -1,4 +1,7 @@
-# 🚀 3D Space Simulation Game
+<div align="center">
+	<img alt="banner" src="banner.png">
+	<h1>🚀 3D Space Simulation Game</h1>
+</div>
 
 A small 3D space simulation game built with [Bevy 0.16](https://bevy.org), featuring:
 
@@ -9,9 +12,7 @@ A small 3D space simulation game built with [Bevy 0.16](https://bevy.org), featu
 - A **starfield** made from distant emissive points to enhance immersion.
 - Full **WASD + mouse** control for 6-DOF space navigation.
 
----
-
-## 🕹️ Controls
+### 🕹️ Controls
 
 | Key / Input | Action                               |
 | ----------- | ------------------------------------ |
@@ -21,9 +22,7 @@ A small 3D space simulation game built with [Bevy 0.16](https://bevy.org), featu
 | `D`         | Roll right                           |
 | Mouse       | Pitch (up/down) and Yaw (left/right) |
 
----
-
-## 🛸 3D Models
+### 🛸 3D Models
 
 **Note:** You need to manually download and place these 3D models into your `assets` directory:
 
