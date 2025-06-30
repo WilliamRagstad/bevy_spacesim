@@ -9,7 +9,7 @@ mod plugins;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.build().disable::<TransformPlugin>())
         .add_plugins(BigSpaceDefaultPlugins)
         .add_plugins((
             SpaceshipPlugin,
