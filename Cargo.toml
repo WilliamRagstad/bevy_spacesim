@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 bevy = { version = "0.16.1", features = ["webgl2"] }
+big_space = { version = "0.10.0", features = ["camera"] }
 noise = "0.9.0"
 rand = "0.9.1"
 

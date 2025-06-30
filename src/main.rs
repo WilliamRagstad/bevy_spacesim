@@ -3,12 +3,14 @@ use crate::plugins::{
     spaceship::SpaceshipPlugin, starfield::StarfieldPlugin,
 };
 use bevy::prelude::*;
+use big_space::plugin::BigSpaceDefaultPlugins;
 
 mod plugins;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugins(BigSpaceDefaultPlugins)
         .add_plugins((
             SpaceshipPlugin,
             CameraPlugin,
