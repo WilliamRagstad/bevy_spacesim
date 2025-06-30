@@ -8,6 +8,7 @@ use bevy::{
     prelude::*,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
+use big_space::prelude::*;
 use noise::{NoiseFn, Perlin};
 use rand::{Rng, RngCore};
 
@@ -118,7 +119,12 @@ fn spawn_planets(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut images: ResMut<Assets<Image>>,
+    big_space_query: Query<Entity, With<BigSpace>>,
 ) {
+    let Ok(big_space_entity) = big_space_query.single() else {
+        return; // No BigSpace found yet
+    };
+
     let planet_mesh = meshes.add(Mesh::from(Sphere { radius: 1.0 }));
     let mut rng = rand::rng();
     for _ in 0..PLANET_COUNT {
@@ -131,12 +137,18 @@ fn spawn_planets(
         let position = Vec3::new(x, y, z);
         let planet_material = generate_planet_material(&mut materials, &mut images, &mut rng);
         let scale = rng.random_range(PLANET_SCALE);
-        commands.spawn((
+        
+        let planet_entity = commands.spawn((
             Mesh3d(planet_mesh.clone()),
             MeshMaterial3d(planet_material.clone()),
-            Transform::from_translation(position).with_scale(Vec3::splat(scale)),
-            Visibility::Visible,
-            InheritedVisibility::default(),
-        ));
+            BigSpatialBundle {
+                transform: Transform::from_translation(position).with_scale(Vec3::splat(scale)),
+                cell: GridCell::default(),
+                ..default()
+            },
+        )).id();
+
+        // Make planet a child of BigSpace
+        commands.entity(big_space_entity).add_child(planet_entity);
     }
 }

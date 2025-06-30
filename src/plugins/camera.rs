@@ -1,5 +1,6 @@
 use crate::plugins::spaceship::Spaceship;
 use bevy::{core_pipeline::motion_blur::MotionBlur, prelude::*};
+use big_space::prelude::*;
 
 pub struct CameraPlugin;
 
@@ -14,8 +15,12 @@ const FOLLOW_DISTANCE: f32 = 25.0;
 const FOLLOW_HEIGHT: f32 = 10.0;
 const FOLLOW_Y_OFFSET: f32 = 5.0;
 
-fn spawn_camera(mut commands: Commands) {
-    commands.spawn((
+fn spawn_camera(mut commands: Commands, big_space_query: Query<Entity, With<BigSpace>>) {
+    let Ok(big_space_entity) = big_space_query.single() else {
+        return; // No BigSpace found yet
+    };
+
+    let camera_entity = commands.spawn((
         Camera3d::default(),
         MotionBlur {
             shutter_angle: 1.0,
@@ -24,13 +29,20 @@ fn spawn_camera(mut commands: Commands) {
         // MSAA and Motion Blur together are not compatible on WebGL
         #[cfg(all(feature = "webgl2", target_arch = "wasm32", not(feature = "webgpu")))]
         Msaa::Off,
-        Transform::from_xyz(0.0, 0.0, 100.0).looking_at(Vec3::ZERO, Dir3::Y),
-    ));
+        BigSpatialBundle {
+            transform: Transform::from_xyz(0.0, 0.0, 100.0).looking_at(Vec3::ZERO, Dir3::Y),
+            cell: GridCell::default(),
+            ..default()
+        },
+    )).id();
+
+    // Make camera a child of BigSpace
+    commands.entity(big_space_entity).add_child(camera_entity);
 }
 
 fn follow_camera(
-    mut query_cam: Query<&mut Transform, (With<Camera3d>, Without<Spaceship>)>,
-    query_ship: Query<&Transform, With<Spaceship>>,
+    mut query_cam: Query<&mut Transform, (With<Camera3d>, Without<Spaceship>, With<GridCell>)>,
+    query_ship: Query<&Transform, (With<Spaceship>, With<GridCell>)>,
 ) {
     if let (Ok(mut cam_transform), Ok(ship_transform)) =
         (query_cam.single_mut(), query_ship.single())
