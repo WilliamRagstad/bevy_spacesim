@@ -1,11 +1,12 @@
 use bevy::prelude::*;
+use big_space::prelude::*;
 use std::f32::consts::FRAC_PI_2;
 
 pub struct SpaceshipPlugin;
 
 impl Plugin for SpaceshipPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_space_ship)
+        app.add_systems(Startup, (setup_big_space, spawn_space_ship).chain())
             .add_systems(Update, move_space_ship);
     }
 }
@@ -22,35 +23,55 @@ pub struct Spaceship {
     velocity: Vec3,
 }
 
-fn spawn_space_ship(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_big_space(mut commands: Commands) {
+    // Create the root BigSpace entity with default grid
+    commands.spawn(BigSpaceRootBundle {
+        grid: Grid::default(),
+        root: BigSpace {
+            floating_origin: None,
+        },
+        ..default()
+    });
+}
+
+fn spawn_space_ship(mut commands: Commands, asset_server: Res<AssetServer>, big_space_query: Query<Entity, With<BigSpace>>) {
+    let Ok(big_space_entity) = big_space_query.single() else {
+        return; // No BigSpace found yet
+    };
+    
     // Create a local scene with the 3D model and the rotation correction
     let model_scene = (
         SceneRoot(asset_server.load("space_fighter.glb#Scene0")),
         Transform::from_rotation(Quat::from_rotation_y(FRAC_PI_2)),
     );
 
-    // Spawn the spaceship entity with the Spaceship component and a transform,
-    // and add the model scene as a child
-    commands
+    // Spawn the spaceship entity with GridCell for high precision positioning
+    let spaceship_entity = commands
         .spawn((
-            Transform::from_rotation(Quat::from_rotation_z(0.0)).looking_to(-Dir3::Z, Dir3::Y),
+            BigSpatialBundle {
+                transform: Transform::from_rotation(Quat::from_rotation_z(0.0)).looking_to(-Dir3::Z, Dir3::Y),
+                cell: GridCell::default(),
+                ..default()
+            },
             Spaceship {
                 velocity: Vec3::ZERO,
             },
-            Visibility::Visible,
-            InheritedVisibility::default(),
+            FloatingOrigin, // This spaceship will be our floating origin
         ))
         .with_children(|parent| {
             parent.spawn(model_scene);
-        });
+        })
+        .id();
+
+    // Make the spaceship a child of the BigSpace
+    commands.entity(big_space_entity).add_child(spaceship_entity);
 }
 
 fn move_space_ship(
     time: Res<Time>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    // mut mouse_input: EventReader<MouseMotion>,
     windows: Query<&Window>,
-    mut query: Query<(&mut Transform, &mut Spaceship)>,
+    mut query: Query<(&mut Transform, &mut Spaceship), With<GridCell>>,
 ) {
     let window = if let Ok(w) = windows.single() {
         w
@@ -61,6 +82,7 @@ fn move_space_ship(
 
     for (mut transform, mut spaceship) in query.iter_mut() {
         let dt = time.delta_secs();
+        
         if keyboard_input.any_pressed([KeyCode::ArrowUp, KeyCode::KeyW]) {
             // Accelerate the spaceship
             let forward = transform.forward();
@@ -77,7 +99,8 @@ fn move_space_ship(
             let forward = transform.forward();
             spaceship.velocity -= forward * THRUST_ACCEL * dt;
         }
-        // Update the spaceship's position based on its velocity
+        
+        // Update the spaceship's position (big_space will handle precision automatically)
         transform.translation += spaceship.velocity * dt;
 
         // Apply drag to gradually slow down the ship

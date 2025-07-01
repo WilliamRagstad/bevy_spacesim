@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use big_space::prelude::*;
 
 const SPACE_BACKGROUND_COLOR: Color = Color::srgb(0.05, 0.05, 0.1);
 
@@ -16,7 +17,12 @@ fn setup_skybox(
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    big_space_query: Query<Entity, With<BigSpace>>,
 ) {
+    let Ok(big_space_entity) = big_space_query.single() else {
+        return; // No BigSpace found yet
+    };
+
     let skybox_texture = asset_server.load("space_bg.png");
     let skybox_material = materials.add(StandardMaterial {
         base_color_texture: Some(skybox_texture),
@@ -27,11 +33,16 @@ fn setup_skybox(
         ..default()
     });
 
-    commands.spawn((
+    let skybox_entity = commands.spawn((
         Mesh3d(meshes.add(Mesh::from(Sphere::new(1.)))),
         MeshMaterial3d(skybox_material),
-        Visibility::Visible,
-        InheritedVisibility::default(),
-        Transform::from_translation(Vec3::ZERO).with_scale(Vec3::splat(100_000_000_000.0)),
-    ));
+        BigSpatialBundle {
+            transform: Transform::from_translation(Vec3::ZERO).with_scale(Vec3::splat(100_000_000_000.0)),
+            cell: GridCell::default(),
+            ..default()
+        },
+    )).id();
+
+    // Make skybox a child of BigSpace
+    commands.entity(big_space_entity).add_child(skybox_entity);
 }
